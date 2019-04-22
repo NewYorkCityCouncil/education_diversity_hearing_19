@@ -7,7 +7,7 @@ shs <- c("10X445",
          "05M692",
          "28Q687")
 
-school_dems %>%
+shs_demo_plot <- school_dems %>%
   filter(dbn %in% shs, year == "2017-18") %>%
   select(school_name,
          number_asian,

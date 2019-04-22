@@ -1,0 +1,42 @@
+---
+title: "School diversity hearing"
+author: "Your Name"
+date: '`r councildown::pretty_date()`'
+output: 
+  councildown::council_html: default
+  councildown::council_pdf:
+    latex_engine: xelatex
+compact-title: true
+fontsize: 11pt
+subparagraph: yes
+---
+
+```{r include = FALSE}
+library(ggplot2)
+library(councildown)
+
+extrafont::loadfonts()
+knitr::knit_hooks$set(embed = hook_pdfembed)
+knitr::opts_chunk$set(echo = FALSE, embed = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+```{r load-data}
+source("code/00_load_data.R")
+```
+
+# Specialized High School Diversity
+
+```{r}
+source("code/shs_diversity.R")
+shs_demo_plot
+```
+
+
+# Middle School Segregation
+
+```{r}
+source("code/map_middle_school_div.R")
+diversity_map
+```
+

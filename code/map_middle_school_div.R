@@ -82,7 +82,7 @@ plots <- school_dems %>%
 
 pal <- colorNumeric("Blues", school_divs$sj)
 
-school_divs %>%
+diversity_map <- school_divs %>%
   left_join(plots, by = "dbn") %>%
   leaflet() %>%
   addCouncilStyle(add_dists = FALSE) %>%
