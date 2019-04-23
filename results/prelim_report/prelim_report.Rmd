@@ -1,11 +1,11 @@
 ---
 title: "School diversity hearing"
-author: "Your Name"
+author: "Nick Solomon"
 date: '`r councildown::pretty_date()`'
 output: 
-  councildown::council_html: default
   councildown::council_pdf:
     latex_engine: xelatex
+  councildown::council_html: default
 compact-title: true
 fontsize: 11pt
 subparagraph: yes
@@ -14,6 +14,7 @@ subparagraph: yes
 ```{r include = FALSE}
 library(ggplot2)
 library(councildown)
+library(scales)
 
 extrafont::loadfonts()
 knitr::knit_hooks$set(embed = hook_pdfembed)
@@ -27,16 +28,85 @@ source("code/00_load_data.R")
 
 # Specialized High School Diversity
 
-```{r}
+Specialized high schools have been an important part of the conversation around school diversity and integration in New York City. The graphic below shows the racial demographics of 8 of the 9 specialized high schools. LaGuardia High School is not show here as it has audtions based admissions. Clearly, severe discrepancies exist for those given access to the highest level of academic achievement New York City has to offer.
+
+```{r fig.asp=1}
 source("code/shs_diversity.R")
 shs_demo_plot
 ```
 
 
-# Middle School Segregation
 
-```{r}
-source("code/map_middle_school_div.R")
-diversity_map
+# Elementary School Diversity and Geography
+
+Below is a plot showing the racial and ethnic demographics of two co-located elementary schools in District 1. Despite being in literally the same location, these two schools exhibit very different demographics. What decisions made by the school, the district, or the Department of Education have lead to this discrepancy?
+
+
+```{r include = FALSE}
+star_pov <- school_dems %>% 
+  filter(str_detect(school_name, "STAR Academy .*63"), year == "2017-18") %>% 
+  pull(percent_poverty)
+star_eni <- school_dems %>% 
+  filter(str_detect(school_name, "STAR Academy .*63"), year == "2017-18") %>% 
+  pull(economic_need_index)
+
+nbhd_pov <- school_dems %>% 
+  filter(str_detect(school_name, "Neighborhood School"), str_detect(dbn, "M"), year == "2017-18") %>% 
+  pull(percent_poverty)
+nbhd_eni <- school_dems %>% 
+  filter(str_detect(school_name, "Neighborhood School"), str_detect(dbn, "M"), year == "2017-18") %>% 
+  pull(economic_need_index)
 ```
 
+
+```{r fig.asp = .5, fig.height=4, fig.cap = "Segregated and integrated schools are often very close to one another. These two elementary schools are co-located in the same building, but one is much more segregated than the other."}
+source("code/elem_school_maps.R")
+plots[[1]]
+```
+
+The STAR Academy is predominatly black and Hispanic, with fewer than 20% white students. The Neighborhood school, on the other hand is more than 40% white. What could cause such a discrepancy? Furthermore, these schools show differences in demographics beyond race. In the 2017-18 school year, The STAR Academy, which is predominantely Hispanic and black, had an economic need index of `r percent(star_eni)` and the DOE classified `r percent(star_pov)` of its students as experiencing poverty. In comparison, during the same year Neighborhood School had an economic need index of `r percent(nbhd_eni)` and `r percent(nbhd_pov)` of its students experienced poverty. These schools are divided not just along racial lines but along socio-economic lines.
+
+
+<!-- # Middle School Segregation -->
+
+<!-- This map shows the locations of DOE managed middle schools (where a middle school is any school with a 6th grade) in the city. The shading reflects how racially representative the school is, with darker colors deviating more significantly from the overall frequency distribution of races in New York City middle schools. Clicking on any one of the schools shows the racial breakdown of the school. -->
+
+<!-- ```{r cache = TRUE} -->
+<!-- source("code/map_middle_school_div.R") -->
+<!-- # diversity_map -->
+<!-- ``` -->
+
+<!-- One area in particular shows a startling difference between schools that are very close together. These two schools are close together near the Park Slope neighborhood of Brooklyn -->
+
+<!-- ```{r} -->
+<!-- # plots_all_vars <- school_divs %>% -->
+<!-- #   left_join(plots, by = "dbn") -->
+<!-- #  -->
+<!-- # plots_all_vars %>%  -->
+<!-- #   filter(str_detect(school_name, "M.S. 51")) %>%  -->
+<!-- #   pull(plots) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- # plots_all_vars %>%  -->
+<!-- #   filter(str_detect(school_name, "The Math & Science")) %>%  -->
+<!-- #   pull(plots) -->
+<!-- ``` -->
+
+<!-- Across Flatbush Avenue, these schools in Prospect heights look very different. -->
+
+<!-- ```{r} -->
+<!-- # plots_all_vars %>%  -->
+<!-- #   filter(str_detect(school_name, "I.S. 340")) %>%  -->
+<!-- #   pull(plots) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- # plots_all_vars %>%  -->
+<!-- #   filter(str_detect(school_name, "Elijah Stroud")) %>%  -->
+<!-- #   pull(plots) -->
+<!-- ``` -->
+
+
+<!-- What DOE policies and procedures and neighborhood demographic and economic characteristics lead to such a discrepancy between schools only a short walk from one another? -->

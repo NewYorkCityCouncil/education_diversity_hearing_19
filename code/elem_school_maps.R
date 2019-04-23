@@ -1,6 +1,8 @@
 library(sf)
 library(leaflet)
 library(mapview)
+library(cowplot)
+library(councildown)
 
 school_locations <- st_read("https://data.cityofnewyork.us/resource/r2nx-nhxe.geojson?$limit=99999",
                             stringsAsFactors = FALSE,
@@ -22,7 +24,7 @@ sj_div <- function(vals, baseline) {
 
 
 baseline <- school_dems %>%
-  mutate(is_middle = grade_6 > 0 & grade_4 == 0) %>%
+  mutate(is_middle = grade_6 == 0 & grade_4 > 0) %>%
   filter(year == "2017-18", is_middle, !str_detect(dbn, "^84")) %>%
   select(school_name,
          year,
@@ -39,7 +41,7 @@ baseline <- school_dems %>%
   pull(prop)
 
 school_divs <- school_dems %>%
-  mutate(is_middle = grade_6 > 0 & grade_4 == 0) %>%
+  mutate(is_middle = grade_6 == 0 & grade_4 > 0) %>%
   filter(year == "2017-18", is_middle, !str_detect(dbn, "^84")) %>%
   select(school_name,
          year,
@@ -62,7 +64,7 @@ school_divs <- school_dems %>%
 
 
 plots <- school_dems %>%
-  mutate(is_middle = grade_6 > 0 & grade_4 == 0) %>%
+  mutate(is_middle = grade_6 == 0 & grade_4 > 0) %>%
   filter(year == "2017-18", is_middle, !str_detect(dbn, "^84")) %>%
   select(school_name,
          year,
@@ -82,14 +84,16 @@ plots <- school_dems %>%
   mutate(data = map(data, ~mutate(.x, prop = number/sum(number))),
          plots = map2(data, school_name, ~ggplot(.x, aes(race, prop)) +
                         geom_col() +
-                        scale_y_continuous(labels = scales::percent) +
-                        labs(title = .y) +
-                        coord_flip())) %>%
-  select(dbn, plots)
+                        scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+                        labs(title = .y,
+                             x = "Race",
+                             y = "Percent of students") +
+                        coord_flip() +
+                        theme_nycc(print = TRUE)))
 
 pal <- colorNumeric("Blues", school_divs$sj)
 
-# diversity_map <- school_divs %>%
+# diversity_map_elem <- school_divs %>%
 #   left_join(plots, by = "dbn") %>%
 #   leaflet() %>%
 #   addCouncilStyle(add_dists = FALSE) %>%
@@ -97,3 +101,44 @@ pal <- colorNumeric("Blues", school_divs$sj)
 #                    fillColor = ~pal(sj),
 #                    popup = ~mapview::popupGraph(plots)) %>%
 #   addLegend(pal = pal, values = ~sj)
+
+
+tmp <- school_divs %>%
+  left_join(plots, by = "dbn")
+
+rep <- tmp %>%
+  mutate(is_rep = map_lgl(data, function(x){
+    tmp2 <- select(x, -number) %>%
+      spread(race, prop) %>%
+      mutate(tmp2 = Black + Hispanic) %>%
+      pull(tmp2)
+    tmp2 > .5 & tmp2 < .9
+  })) %>%
+  filter(is_rep)
+
+non_rep <- tmp %>%
+  mutate(is_rep = map_lgl(data, function(x){
+    tmp2 <- select(x, -number) %>%
+      spread(race, prop) %>%
+      mutate(tmp2 = Black + Hispanic) %>%
+      pull(tmp2)
+    tmp2 > .5 & tmp2 < .9
+  })) %>%
+  filter(!is_rep)
+
+dists <- st_distance(rep, non_rep)
+
+mins <- which(dists == min(dists), arr.ind = TRUE)
+
+rep[mins[,1],] %>%
+  select(-plots) %>%
+  unnest()
+
+non_rep[mins[,2],] %>%
+  select(-plots) %>%
+  unnest()
+
+
+plots <- map2(rep[mins[,1],]$plots, non_rep[mins[,2],]$plots, ~plot_grid(.x, .y, align = "hv"))
+
+# map2(plots, 1:length(plots), ~ggsave(paste0("plot_", .y, ".jpg"), .x, , width = 10, height = 5))
