@@ -1,0 +1,125 @@
+\documentclass[11pt,]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={School diversity hearing},
+            pdfauthor={Nick Solomon and James Subudhi},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{longtable,booktabs}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \large#1
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{School diversity hearing}
+    \pretitle{\vspace{\droptitle}\huge}
+  \posttitle{\par}
+    \author{Nick Solomon and James Subudhi}
+    \preauthor{\large\emph}
+  \postauthor{\par}
+      \predate{\large\emph}
+  \postdate{\par}
+    \date{April 23, 2019}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% NS ADDITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{fontspec}
+\usepackage{graphicx}
+
+\usepackage[headsep=2cm, margin=1in, top=1.25in]{geometry}
+
+\setmainfont{Open Sans}
+\newfontfamily\headingfont[]{Georgia}
+\usepackage{titlesec}
+\titleformat*{\section}{\LARGE\headingfont}
+\titleformat*{\subsection}{\Large\headingfont}
+\titleformat*{\subsubsection}{\large\headingfont}
+\renewcommand{\maketitlehooka}{\headingfont}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\rhead{\raisebox{.5\height}{\includegraphics[width=3.5in]{assets/council-logo}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% END NS ADDITIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\hypertarget{specialized-high-school-diversity}{%
+\section{Specialized High School Diversity}\label{specialized-high-school-diversity}}
+
+Specialized high schools have been an important part of the conversation around school diversity and integration in New York City. The graphic below shows the racial demographics of 8 of the 9 specialized high schools. LaGuardia High School is not show here as it has audtions based admissions. Clearly, severe discrepancies exist for those given access to the highest level of academic achievement New York City has to offer.
+
+\includegraphics{prelim_report_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+\hypertarget{elementary-school-diversity-and-geography}{%
+\section{Elementary School Diversity and Geography}\label{elementary-school-diversity-and-geography}}
+
+Below is a plot showing the racial and ethnic demographics of two co-located elementary schools in District 1. Despite being in literally the same location, these two schools exhibit very different demographics. What decisions made by the school, the district, or the Department of Education have lead to this discrepancy?
+\begin{figure}
+\centering
+\includegraphics{prelim_report_files/figure-latex/unnamed-chunk-4-1.pdf}
+\caption{\label{fig:unnamed-chunk-4}Segregated and integrated schools are often very close to one another. These two elementary schools are co-located in the same building, but one is much more segregated than the other.}
+\end{figure}
+The STAR Academy is predominatly black and Hispanic, with fewer than 20\% white students. The Neighborhood school, on the other hand is more than 40\% white. What could cause such a discrepancy? Furthermore, these schools show differences in demographics beyond race. In the 2017-18 school year, The STAR Academy, which is predominantely Hispanic and black, had an economic need index of 75.9\% and the DOE classified 81.8\% of its students as experiencing poverty. In comparison, during the same year Neighborhood School had an economic need index of 48.0\% and 43.8\% of its students experienced poverty. These schools are divided not just along racial lines but along socio-economic lines.
+
+
+\end{document}

@@ -86,7 +86,7 @@ plots <- school_dems %>%
                         geom_col() +
                         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
                         labs(title = .y,
-                             x = "Race",
+                             x = "Race/ethnicity",
                              y = "Percent of students") +
                         coord_flip() +
                         theme_nycc(print = TRUE)))

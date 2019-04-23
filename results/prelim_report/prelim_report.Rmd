@@ -1,6 +1,6 @@
 ---
 title: "School diversity hearing"
-author: "Nick Solomon"
+author: "Nick Solomon and James Subudhi"
 date: '`r councildown::pretty_date()`'
 output: 
   councildown::council_pdf:

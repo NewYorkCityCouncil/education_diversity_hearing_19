@@ -36,11 +36,11 @@ shs_demo_plot <- school_dems %>%
   # coord_flip() +
   scale_y_continuous(labels = scales::percent_format()) +
   labs(title = "Specialized high school diversity (2017-18 school year)",
-       subtitle = "The percent of students of each race attending a specialized high school",
+       subtitle = "The percent of students of each race and ethnicity attending a specialized high school",
        y = "Percent of students",
        x = "",
        caption = "Source: DOE Demographic Snapshot",
-       fill =  "Race") +
+       fill =  "Race/ethnicity") +
   theme_nycc(print = TRUE) +
   theme(legend.position = "bottom",
         axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
