@@ -29,6 +29,8 @@ source("code/00_load_data.R")
 
 # City Overview
 
+This section contains facts about all schools and students in New York City that were included in the 2017 committee report. All data is for the 
+
 ## Race and Ethnicity
 
 ```{r}
@@ -54,13 +56,83 @@ citywide %>%
   geom_text(aes(label = paste0(number(number,big.mark = ","), " (", percent(prop) ,")")),
             family = "Times New Roman",
             vjust = -.5) +
-  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), expand = expand_scale(mult = .05, add = c(0, .01))) +
   theme_nycc(print = TRUE) +
   labs(title = "Demographic breakdown of New York City Schools",
        subtitle = "For the 2017-18 school year",
        x = "Race/ethnicity",
        y = "Percent of students",
        caption = "Source: DOE Demographic Snapshot")
+```
+
+
+
+```{r}
+num_black_hispanic_less_10_white <- school_dems %>% 
+  filter(year == "2017-18", percent_white < .1, !str_detect(dbn, "^84")) %>% 
+  summarize(number_black = sum(number_black),
+            number_hispanic = sum(number_hispanic)) %>% 
+  mutate(total = number_black + number_hispanic) %>% 
+  pull(total)
+
+num_black_hispanic <- school_dems %>% 
+  filter(year == "2017-18", !str_detect(dbn, "^84")) %>% 
+  summarize(number_black = sum(number_black),
+            number_hispanic = sum(number_hispanic)) %>% 
+  mutate(total = number_black + number_hispanic) %>% 
+  pull(total)
+
+
+num_white_more_50_white <- school_dems %>% 
+  filter(year == "2017-18", percent_white > .5, !str_detect(dbn, "^84")) %>% 
+  summarize(number_white = sum(number_white)) %>% 
+  pull(number_white)
+
+num_white <- school_dems %>% 
+  filter(year == "2017-18", !str_detect(dbn, "^84")) %>% 
+  summarize(number_white = sum(number_white)) %>% 
+  pull(number_white)
+
+```
+
+- `r percent(num_black_hispanic_less_10_white/num_black_hispanic)` of black and Hispanic students attend a school that is less than 10% white students.
+- `r percent(num_white_more_50_white/num_white)` of white students attend a school with more than 50% white students
+
+```{r}
+more_75_poverty_race <- school_dems %>% 
+  filter(year == "2017-18", !str_detect(dbn, "^84"), percent_poverty > .75) %>% 
+  summarize_at(vars(starts_with("number_")), sum) %>% 
+  select(number_asian,
+         number_black,
+         number_hispanic,
+         number_multiple_race_categories_not_represented,
+         number_white)
+
+num_race <- school_dems %>% 
+  filter(year == "2017-18", !str_detect(dbn, "^84")) %>% 
+  summarize_at(vars(starts_with("number_")), sum) %>% 
+  select(number_asian,
+         number_black,
+         number_hispanic,
+         number_multiple_race_categories_not_represented,
+         number_white)
+
+(more_75_poverty_race/num_race) %>% 
+  gather("race", "prop") %>% 
+  mutate(race = str_remove(race, "number_") %>%
+           str_replace_all("_", " ") %>%
+           str_to_sentence() %>%
+           str_wrap(width = 30) %>% 
+           reorder(-prop)) %>% 
+  ggplot(aes(race, prop)) +
+  geom_col() +
+  scale_y_continuous(labels = percent_format(accuracy = 1))+
+  labs(title = "Percentage of students attending a school where\nmore than 75% of students experience poverty",
+       subtitle = "Broken down by race and ethnicity",
+       x = "Race/ethnicity",
+       y = "Percent of students",
+       caption = "Source: DOE Demographic Snapshot") + 
+  theme_nycc(print = TRUE)
 ```
 
 
@@ -77,11 +149,82 @@ city_eni <- citywide %>%
 ```
 
 
-Citywide, `r percent(city_pov)` of students experience poverty. The citywide Economic Need Index is `r percent(city_eni)`.
+- Citywide, `r percent(city_pov)` of students experience poverty. The citywide Economic Need Index is `r percent(city_eni)`.
+
+## ELL Students
+
+```{r}
+num_more_20_ell <- school_dems %>% 
+  filter(year == "2017-18", !str_detect(dbn, "^84"), percent_english_language_learners > .2) %>% 
+  nrow()
+num_less_10_ell <- school_dems %>% 
+  filter(year == "2017-18", !str_detect(dbn, "^84"), percent_english_language_learners < .1) %>% 
+  nrow()
+
+num_schools <- school_dems %>% 
+  filter(year == "2017-18", !str_detect(dbn, "^84")) %>% 
+  nrow()
+```
+
+- `r percent(num_more_20_ell/num_schools)` of schools have a population of more than 20% ELL students
+- `r percent(num_less_10_ell/num_schools)` of schools have a population of less than 10% ELL students
+
+## Students With Disabilities
+
+- `r citywide %>% filter(year == "2017-18") %>% pull(percent_students_with_disabilities) %>% percent()` of students in New York City are students with disabilities.
+
+```{r}
+num_less_10_dis <- school_dems %>% 
+  filter(year == "2017-18", !str_detect(dbn, "^84"), percent_students_with_disabilities < .1) %>% 
+  nrow()
+```
+
+- `r percent(num_less_10_dis/num_schools)` of schools have a population that is less than 10% students with disabilities.
+
+## Students in temporary housing
+
+```{r}
+diversity_report_k8 <- read_excel("data/original_data/17-18_report.xlsx", sheet = "Grades K-8 School") %>% 
+  clean_names()
+
+diversity_report_912 <- read_excel("data/original_data/17-18_report.xlsx", sheet = "Grades 9-12 School") %>% 
+  clean_names()
+
+all_temp_housing <- bind_rows(diversity_report_912, diversity_report_k8) %>% 
+  filter(category == "Students in temporary housing", !str_detect(dbn, "^84")) %>%
+  select(dbn, temp_housing = total_enrollment) %>%
+  mutate(temp_housing = parse_number(temp_housing)) %>% 
+  group_by(dbn) %>% 
+  summarize(temp_housing = sum(temp_housing, na.rm = TRUE))
+
+total_enrollment <- bind_rows(diversity_report_912, diversity_report_k8) %>% 
+  filter(category == "All Students", !str_detect(dbn, "^84")) %>%
+  select(dbn, total_enrollment) %>%
+  mutate(total_enrollment = parse_number(total_enrollment)) %>% 
+  group_by(dbn) %>% 
+  summarize(total_enrollment = sum(total_enrollment, na.rm = TRUE))
+
+perc_more_15_temp_housing <- total_enrollment %>% 
+  left_join(all_temp_housing, by = "dbn") %>% 
+  mutate(perc_temp_housing = temp_housing/total_enrollment) %>%
+  replace_na(list(perc_temp_housing = 0)) %>% 
+  summarize(mean(perc_temp_housing > .15, na.rm = TRUE)) %>% 
+  pull()
+
+perc_no_temp_housing <- total_enrollment %>% 
+  left_join(all_temp_housing, by = "dbn") %>% 
+  mutate(perc_temp_housing = temp_housing/total_enrollment) %>% 
+  summarize(mean(perc_temp_housing == 0, na.rm = TRUE)) %>% 
+  pull()
+```
+
+
+- `r percent(perc_more_15_temp_housing)` of schools have a population of more than 15% of students in temporary housing.
+- `r percent(perc_no_temp_housing)` of schools do not have any students in temporary housing.
 
 # Specialized High School Diversity
 
-Specialized high schools have been an important part of the conversation around school diversity and integration in New York City. The graphic below shows the racial demographics of 8 of the 9 specialized high schools. LaGuardia High School is not show here as it has audtions based admissions. Clearly, severe discrepancies exist for those given access to the highest level of academic achievement New York City has to offer.
+Specialized high schools have been an important part of the conversation around school diversity and integration in New York City. The graphic below shows the racial demographics of 8 of the 9 specialized high schools. LaGuardia High School is not show here as it has auditions based admissions. Clearly, severe discrepancies exist for those given access to the highest level of academic achievement New York City has to offer.
 
 ```{r fig.asp=1}
 source("code/shs_diversity.R")
@@ -129,7 +272,7 @@ source("code/elem_school_maps.R")
 plots[[1]]
 ```
 
-The STAR Academy is predominatly black and Hispanic, with fewer than 20% white students. The Neighborhood school, on the other hand is more than 40% white. What could cause such a discrepancy? Furthermore, these schools show differences in demographics beyond race. In the 2017-18 school year, The STAR Academy, which is predominantely Hispanic and black, had an economic need index of `r percent(star_eni)` and the DOE classified `r percent(star_pov)` of its students as experiencing poverty. In comparison, during the same year Neighborhood School had an economic need index of `r percent(nbhd_eni)` and `r percent(nbhd_pov)` of its students experienced poverty. These schools are divided not just along racial lines but along socio-economic lines.
+The STAR Academy is predominately black and Hispanic, with fewer than 20% white students. The Neighborhood school, on the other hand is more than 40% white. What could cause such a discrepancy? Furthermore, these schools show differences in demographics beyond race. In the 2017-18 school year, The STAR Academy, which is predominantly Hispanic and black, had an economic need index of `r percent(star_eni)` and the DOE classified `r percent(star_pov)` of its students as experiencing poverty. In comparison, during the same year The Neighborhood School had an economic need index of `r percent(nbhd_eni)` and `r percent(nbhd_pov)` of its students experienced poverty. These schools are divided not just along racial lines but along socio-economic lines.
 
 
 <!-- # Middle School Segregation -->
@@ -175,3 +318,4 @@ The STAR Academy is predominatly black and Hispanic, with fewer than 20% white s
 
 
 <!-- What DOE policies and procedures and neighborhood demographic and economic characteristics lead to such a discrepancy between schools only a short walk from one another? -->
+
