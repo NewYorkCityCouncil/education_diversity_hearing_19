@@ -26,6 +26,59 @@ knitr::opts_knit$set(root.dir = here::here())
 source("code/00_load_data.R")
 ```
 
+
+# City Overview
+
+## Race and Ethnicity
+
+```{r}
+citywide <- read_excel("data/original_data/demographicsnapshot201314to201718public_final.xlsx", sheet = "Citywide") %>% 
+  clean_names()
+
+citywide %>% 
+  filter(year == "2017-18") %>% 
+  select(number_asian,
+         number_black,
+         number_hispanic,
+         number_multiple_race_categories_not_represented,
+         number_white) %>%
+  gather("race", "number") %>%
+  mutate(prop = number/sum(number)) %>%
+  mutate(race = str_remove(race, "number_") %>%
+           str_replace_all("_", " ") %>%
+           str_to_sentence() %>%
+           str_wrap(width = 30) %>% 
+           reorder(-number)) %>% 
+  ggplot(aes(race, prop)) +
+  geom_col() +
+  geom_text(aes(label = paste0(number(number,big.mark = ","), " (", percent(prop) ,")")),
+            family = "Times New Roman",
+            vjust = -.5) +
+  scale_y_continuous(labels = percent_format(accuracy = 1)) +
+  theme_nycc(print = TRUE) +
+  labs(title = "Demographic breakdown of New York City Schools",
+       subtitle = "For the 2017-18 school year",
+       x = "Race/ethnicity",
+       y = "Percent of students",
+       caption = "Source: DOE Demographic Snapshot")
+```
+
+
+## Poverty
+
+```{r include = FALSE}
+city_pov <- citywide %>% 
+  filter(year == "2017-18") %>% 
+  pull(percent_poverty)
+
+city_eni <- citywide %>% 
+  filter(year == "2017-18") %>% 
+  pull(economic_need_index)
+```
+
+
+Citywide, `r percent(city_pov)` of students experience poverty. The citywide Economic Need Index is `r percent(city_eni)`.
+
 # Specialized High School Diversity
 
 Specialized high schools have been an important part of the conversation around school diversity and integration in New York City. The graphic below shows the racial demographics of 8 of the 9 specialized high schools. LaGuardia High School is not show here as it has audtions based admissions. Clearly, severe discrepancies exist for those given access to the highest level of academic achievement New York City has to offer.
@@ -33,6 +86,18 @@ Specialized high schools have been an important part of the conversation around 
 ```{r fig.asp=1}
 source("code/shs_diversity.R")
 shs_demo_plot
+```
+
+
+## Poverty in Specialized High Schools
+
+```{r}
+school_dems %>%
+  filter(dbn %in% shs, year == "2017-18") %>%
+  select(school_name,
+        percent_poverty, economic_need_index) %>% 
+  mutate_if(is.numeric, percent) %>% 
+  knitr::kable(col.names = c("School", "Percent of Students Experiencing Poverty", "Economic Need Index"))
 ```
 
 
