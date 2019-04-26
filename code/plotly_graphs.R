@@ -34,7 +34,7 @@ citywide_demos <- citywide %>%
   mutate(race = str_remove(race, "number_") %>%
            str_replace_all("_", " ") %>%
            str_to_sentence() %>%
-           str_wrap(width = 30) %>%
+           str_wrap(width = 20) %>%
            reorder(-number)) %>%
   ggplot(aes(race, prop,
              text = paste(race, percent(prop), sep = "<br>"))) +
@@ -88,7 +88,7 @@ dat <- (more_75_poverty_race/num_race) %>%
   mutate(race = str_remove(race, "number_") %>%
            str_replace_all("_", " ") %>%
            str_to_sentence() %>%
-           str_wrap(width = 30) %>%
+           str_wrap(width = 20) %>%
            reorder(-prop))
 cols <- c("#706AE0", "#16AC9E", "#F59F00", "#82C91E", "#CB5871")
 names(cols) <- levels(dat$race)
@@ -177,7 +177,7 @@ shs_demo_plot %>%
     mutate(school_name = str_wrap(school_name, width = 20) %>%
              reorder(percent_poverty)) %>%
     ggplot(aes(school_name, percent_poverty, text = paste(school_name, percent(percent_poverty), sep = "<br>"))) +
-    geom_col(show.legend = FALSE, fill = "#228AE6") +
+    geom_col(show.legend = FALSE, fill = "#2F56A6") +
     # ggplot2::scale_fill_gradient(low = "#228AE6", high = "#FFFFFF") +
     scale_y_continuous(labels = percent_format(accuracy = 1)) +
     coord_flip() +
