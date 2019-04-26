@@ -47,3 +47,14 @@ shs_demo_plot <- school_dems %>%
 
 
 
+school_dems %>%
+  filter(dbn %in% shs, year == "2017-18") %>%
+  select(school_name,
+         number_asian,
+         number_black,
+         number_hispanic,
+         number_multiple_race_categories_not_represented,
+         number_white,
+         number_poverty, total_enrollment) %>%
+  summarize(pov = sum(number_poverty), tot = sum(total_enrollment)) %>%
+  mutate(perc =pov/tot)

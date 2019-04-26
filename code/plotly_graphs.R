@@ -6,6 +6,10 @@ save_plotly <- function(p, name) {
 
   p$sizingPolicy$padding <- 0
 
+  p <- p %>%
+    layout(xaxis=list(fixedrange=TRUE)) %>%
+    layout(yaxis=list(fixedrange=TRUE))
+
   name <- paste0(name, ".html")
   htmlwidgets::saveWidget(p, name)
   file.copy(name, "docs", overwrite = TRUE)
@@ -46,7 +50,7 @@ citywide_demos <- citywide %>%
   scale_fill_manual(values = cols) +
   scale_y_continuous(labels = percent_format(accuracy = 1),
                      expand = expand_scale(mult = .05, add = c(0, .01))) +
-  labs(title = "Demographic breakdown of New York City Public Schools",
+  labs(title = "Demographic breakdown of\nNew York City Public Schools",
        subtitle = "For the 2017-18 school year",
        x = "Race/ethnicity",
        y = "Percent of students",
@@ -148,7 +152,7 @@ shs_demo_plot <- school_dems %>%
   scale_fill_discrete(reverse = TRUE) +
   # coord_flip() +
   scale_y_continuous(labels = scales::percent_format()) +
-  labs(title = "Specialized high school diversity (2017-18 school year)",
+  labs(title = "Specialized high school diversity\n(2017-18 school year)",
        subtitle = "The percent of students of each race and ethnicity attending a specialized high school",
        y = "Percent of students",
        x = "",
