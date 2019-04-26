@@ -3,6 +3,9 @@ library(scales)
 library(plotly)
 
 save_plotly <- function(p, name) {
+
+  p$sizingPolicy$padding <- 0
+
   name <- paste0(name, ".html")
   htmlwidgets::saveWidget(p, name)
   file.copy(name, "docs", overwrite = TRUE)
