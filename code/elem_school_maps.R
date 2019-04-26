@@ -63,6 +63,8 @@ school_divs <- school_dems %>%
   st_as_sf()
 
 
+cols <- c("#706AE0", "#16AC9E", "#F59F00", "#82C91E", "#CB5871")
+
 plots <- school_dems %>%
   mutate(is_middle = grade_6 == 0 & grade_4 > 0) %>%
   filter(year == "2017-18", is_middle, !str_detect(dbn, "^84")) %>%
@@ -82,17 +84,19 @@ plots <- school_dems %>%
   group_by(school_name, dbn) %>%
   nest() %>%
   mutate(data = map(data, ~mutate(.x, prop = number/sum(number))),
-         plots = map2(data, school_name, ~ggplot(.x, aes(race, prop)) +
-                        geom_col() +
+         plots = map2(data, school_name, ~ggplot(.x, aes(race, prop,
+                                                         text = paste(race, percent(prop), sep = "<br>"))) +
+                        geom_col(aes(fill = race), show.legend = FALSE) +
+                        scale_fill_manual(values = cols) +
                         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-                        labs(title = .y,
+                        labs(title = ifelse(str_detect(.y, "^The"), .y, paste("The", .y)),
                              x = "Race/ethnicity",
                              y = "Percent of students") +
                         coord_flip() +
                         theme_nycc(print = TRUE)))
 
-pal <- colorNumeric("Blues", school_divs$sj)
-
+# pal <- colorNumeric("Blues", school_divs$sj)
+#
 # diversity_map_elem <- school_divs %>%
 #   left_join(plots, by = "dbn") %>%
 #   leaflet() %>%
@@ -101,7 +105,7 @@ pal <- colorNumeric("Blues", school_divs$sj)
 #                    fillColor = ~pal(sj),
 #                    popup = ~mapview::popupGraph(plots)) %>%
 #   addLegend(pal = pal, values = ~sj)
-
+#
 
 tmp <- school_divs %>%
   left_join(plots, by = "dbn")
