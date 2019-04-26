@@ -112,7 +112,7 @@ pov_plot <- ggplot(dat, aes(race, prop,
 ggplotly(pov_plot, tooltip = "text") %>%
   config(displayModeBar = FALSE) %>%
   hide_legend() %>%
-  layout(margin = list(l = 80)) %>%
+  layout(margin = list(l = 80, t = 60)) %>%
   save_plotly("students_in_schools_75_pov")
 
 # SHS Demographics --------------------------------------------------------
