@@ -149,7 +149,7 @@ shs_demo_plot <- school_dems %>%
   #                 family = "Times New Roman",
   #                 size = 4.5,
   #                 min.segment.length = 0) +
-  scale_fill_discrete(reverse = TRUE) +
+  scale_fill_discrete(reverse = FALSE) +
   # coord_flip() +
   scale_y_continuous(labels = scales::percent_format()) +
   labs(title = "Specialized high school diversity\n(2017-18 school year)",
