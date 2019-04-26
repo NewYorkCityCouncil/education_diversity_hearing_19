@@ -24,7 +24,7 @@ citywide <- read_excel("data/original_data/demographicsnapshot201314to201718publ
                        sheet = "Citywide") %>%
   clean_names()
 
-cols <- c("#706AE0", "#16AC9E", "#F59F00", "#CB5871", "#82C91E")
+cols <- c("#706AE0", "#CB5871",  "#82C91E", "#16AC9E", "#F59F00")
 
 citywide_demos <- citywide %>%
   filter(year == "2017-18") %>%
@@ -94,7 +94,7 @@ dat <- (more_75_poverty_race/num_race) %>%
            str_to_sentence() %>%
            str_wrap(width = 20) %>%
            reorder(-prop))
-cols <- c("#706AE0", "#16AC9E", "#F59F00", "#82C91E", "#CB5871")
+cols <- c("#706AE0", "#CB5871",  "#82C91E", "#F59F00", "#16AC9E")
 names(cols) <- levels(dat$race)
 
 pov_plot <- ggplot(dat, aes(race, prop,

@@ -62,8 +62,7 @@ school_divs <- school_dems %>%
               mutate(ats_system_code = str_trim(ats_system_code)), by = c("dbn" = "ats_system_code")) %>%
   st_as_sf()
 
-
-cols <- c("#706AE0", "#16AC9E", "#F59F00", "#82C91E", "#CB5871")
+cols <- c("#82C91E", "#CB5871", "#706AE0", "#F59F00", "#16AC9E")
 
 plots <- school_dems %>%
   mutate(is_middle = grade_6 == 0 & grade_4 > 0) %>%
