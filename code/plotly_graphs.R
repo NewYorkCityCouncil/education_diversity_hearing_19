@@ -5,6 +5,7 @@ library(plotly)
 save_plotly <- function(p, name) {
   name <- paste0(name, ".html")
   htmlwidgets::saveWidget(p, name)
+  file.copy(name, "docs", overwrite = TRUE)
   file.rename(name, paste0("results/web_plots/", name))
   p
 }
@@ -162,6 +163,35 @@ shs_demo_plot %>%
   layout(margin = list(l = 80)) %>%
   save_plotly("shs_demos")
 
+
+# SHS Poverty -------------------------------------------------------------
+
+{
+  school_dems %>%
+    filter(dbn %in% shs, year == "2017-18") %>%
+    select(school_name,
+           percent_poverty, economic_need_index) %>%
+    mutate(school_name = str_wrap(school_name, width = 20) %>%
+             reorder(percent_poverty)) %>%
+    ggplot(aes(school_name, percent_poverty, text = paste(school_name, percent(percent_poverty), sep = "<br>"))) +
+    geom_col(show.legend = FALSE, fill = "#228AE6") +
+    # ggplot2::scale_fill_gradient(low = "#228AE6", high = "#FFFFFF") +
+    scale_y_continuous(labels = percent_format(accuracy = 1)) +
+    coord_flip() +
+    labs(title = "Students in poverty",
+         x = "Specialized high schools",
+         y = "Percent of students in poverty") +
+    theme_nycc() +
+    theme(legend.position = "bottom",
+          # axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+          panel.border = element_blank())
+} %>%
+  ggplotly(tooltip = "text") %>%
+  config(displayModeBar = FALSE) %>%
+  hide_legend() %>%
+  layout(margin = list(l = 80)) %>%
+  save_plotly("shs_poverty")
+
 # Elementary school diversity ---------------------------------------------
 
 source("code/elem_school_maps.R")
@@ -183,7 +213,7 @@ source("code/elem_school_maps.R")
     theme_nycc() +
     theme(legend.position = "none",
           panel.border = element_blank())
-}%>%
+  }%>%
   ggplotly(tooltip = "text") %>%
   config(displayModeBar = FALSE) %>%
   hide_legend() %>%
