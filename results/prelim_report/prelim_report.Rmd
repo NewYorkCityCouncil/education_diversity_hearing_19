@@ -3,9 +3,9 @@ title: "School diversity hearing"
 author: "Nick Solomon and James Subudhi"
 date: '`r councildown::pretty_date()`'
 output: 
+  councildown::council_html: default
   councildown::council_pdf:
     latex_engine: xelatex
-  councildown::council_html: default
 compact-title: true
 fontsize: 11pt
 subparagraph: yes
@@ -29,13 +29,15 @@ source("code/00_load_data.R")
 
 # City Overview
 
-This section contains facts about all schools and students in New York City that were included in the 2017 committee report. All data is for the 
+This section contains facts about all schools and students in New York City that were included in the 2017 committee report. All data is for the 2017-18 school year.
 
 ## Race and Ethnicity
 
 ```{r}
 citywide <- read_excel("data/original_data/demographicsnapshot201314to201718public_final.xlsx", sheet = "Citywide") %>% 
   clean_names()
+
+cols <- c("#706AE0", "#16AC9E", "#F59F00", "#CB5871", "#82C91E")
 
 citywide %>% 
   filter(year == "2017-18") %>% 
@@ -52,13 +54,14 @@ citywide %>%
            str_wrap(width = 30) %>% 
            reorder(-number)) %>% 
   ggplot(aes(race, prop)) +
-  geom_col() +
+  geom_col(aes(fill = race), show.legend = FALSE) +
   geom_text(aes(label = paste0(number(number,big.mark = ","), " (", percent(prop) ,")")),
             family = "Times New Roman",
             vjust = -.5) +
+  scale_fill_manual(values = cols) +
   scale_y_continuous(labels = percent_format(accuracy = 1), expand = expand_scale(mult = .05, add = c(0, .01))) +
   theme_nycc(print = TRUE) +
-  labs(title = "Demographic breakdown of New York City Schools",
+  labs(title = "Demographic breakdown of New York City Public Schools",
        subtitle = "For the 2017-18 school year",
        x = "Race/ethnicity",
        y = "Percent of students",
@@ -117,24 +120,31 @@ num_race <- school_dems %>%
          number_multiple_race_categories_not_represented,
          number_white)
 
-(more_75_poverty_race/num_race) %>% 
+ 
+
+dat <- (more_75_poverty_race/num_race) %>% 
   gather("race", "prop") %>% 
   mutate(race = str_remove(race, "number_") %>%
            str_replace_all("_", " ") %>%
            str_to_sentence() %>%
            str_wrap(width = 30) %>% 
-           reorder(-prop)) %>% 
-  ggplot(aes(race, prop)) +
-  geom_col() +
-  scale_y_continuous(labels = percent_format(accuracy = 1))+
+           reorder(-prop))
+cols <- c("#706AE0", "#16AC9E", "#F59F00", "#82C91E", "#CB5871")
+names(cols) <- levels(dat$race)
+  
+ggplot(dat, aes(race, prop)) +
+  geom_col(aes(fill = race), show.legend = FALSE) +
+  scale_fill_manual(values = cols) + 
+   geom_text(aes(label = percent(prop)),
+            family = "Times New Roman",
+            vjust = -.5) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), expand = expand_scale(mult = .05, add = c(0, .01))) +
   labs(title = "Percentage of students attending a school where\nmore than 75% of students experience poverty",
-       subtitle = "Broken down by race and ethnicity",
        x = "Race/ethnicity",
        y = "Percent of students",
        caption = "Source: DOE Demographic Snapshot") + 
   theme_nycc(print = TRUE)
 ```
-
 
 ## Poverty
 
@@ -243,6 +253,53 @@ school_dems %>%
   knitr::kable(col.names = c("School", "Percent of Students Experiencing Poverty", "Economic Need Index"))
 ```
 
+
+<!-- ## Specialized High School Fair Student Funding -->
+
+<!-- ```{r} -->
+<!-- shs_fsf <- data.frame(stringsAsFactors=FALSE, -->
+<!--                       School = c("Stuyvesant HS", -->
+<!--                                  "Brooklyn Tech", -->
+<!--                                  "Bronx Science", "Brooklyn Latin", -->
+<!--                                  "Staten Island Tech", -->
+<!--                                  "Queens HS for Sciences", -->
+<!--                                  "HS of American Studies", "HSMSE"), -->
+<!--                       FY19.Per.Capita = c("$1,020.68", "$1,020.68", -->
+<!--                                           "$1,020.68", "$1,020.68", -->
+<!--                                           "$1,020.68", "$1,020.68",  -->
+<!--                                           "$1,020.68", "$1,020.68"), -->
+<!--                       FY19.Enrollment = c(3298, 5970, 3004, 616, 1335, -->
+<!--                                           473, 409, 512), -->
+<!--                       Specialized.Academic.FSF.100 = c("$3,366,211", "$6,093,475", -->
+<!--                                                        "$3,066,131", "$628,741", -->
+<!--                                                        "$1,362,611", "$482,783", "$417, -->
+<!--                                                   459", "$522,590"), -->
+<!--                       FSF.percent = c("96.66%", "90.00%", -->
+<!--                                       "90.00%", "100.41%", -->
+<!--                                       "97.44%", "106.67%", "113.85%", -->
+<!--                                       "121.25%"), -->
+<!--                       Specialized.Academic.Spending.Given.FSF = c("$3,253,780", "$5,484,128", -->
+<!--                                                                   "$2,759,518", "$631,319", -->
+<!--                                                                   "$1,327,728", "$514,985", "$475, -->
+<!--                                                   277", "$633,640") -->
+<!-- ) %>%  -->
+<!--   mutate_at(vars(-School, -FY19.Enrollment), parse_number) %>%  -->
+<!--   mutate(FSF.percent = FSF.percent/100, -->
+<!--          per_capita_given_fsf = FY19.Per.Capita * FSF.percent, -->
+<!--          School = reorder(School, -per_capita_given_fsf)) -->
+
+
+<!-- ggplot(shs_fsf, aes(School, per_capita_given_fsf)) +  -->
+<!--   geom_col() + -->
+<!--   scale_y_continuous(labels = dollar) + -->
+<!--   labs(title = "Per capita \"Specialized Academic\" funding", -->
+<!--        subtitle = "Accounting for the FSF funding level of each school", -->
+<!--        x = "School", -->
+<!--        y = "\"Specialized Academic\" funding") + -->
+<!--   theme_nycc(print = TRUE) + -->
+<!--   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) -->
+
+<!-- ``` -->
 
 
 # Elementary School Diversity and Geography
