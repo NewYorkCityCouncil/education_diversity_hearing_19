@@ -167,7 +167,7 @@ shs_demo_plot %>%
   ggplotly(tooltip = "text") %>%
   config(displayModeBar = FALSE) %>%
   # hide_legend() %>%
-  layout(margin = list(l = 80), legend = list(orientation = "h", y = -.35)) %>%
+  layout(margin = list(l = 80), legend = list(orientation = "h", y = -.35, xanchor = "center", x = .5)) %>%
   save_plotly("shs_demos")
 
 
