@@ -171,6 +171,50 @@ shs_demo_plot %>%
   save_plotly("shs_demos")
 
 
+# SHS total demographics --------------------------------------------------
+
+{
+  school_dems %>%
+    filter(dbn %in% shs, year == "2017-18") %>%
+    select(school_name,
+           number_asian,
+           number_black,
+           number_hispanic,
+           number_multiple_race_categories_not_represented,
+           number_white) %>%
+    summarize_if(is.numeric, sum) %>%
+    gather(race, total) %>%
+    mutate(percent = total/sum(total),
+           race = str_remove(race, "number_") %>%
+             str_replace_all("_", " ") %>%
+             str_to_sentence() %>%
+             str_wrap(width = 25) %>%
+             reorder(-percent)) %>%
+    ggplot(aes(race, percent, fill = race, text = paste(race, percent(percent), sep = "<br>"))) +
+    geom_col(show.legend = FALSE) +
+    # geom_text(aes(label = percent(percent, accuracy = 1)),
+    #           family = "Times New Roman",
+    #           vjust = -.5) +
+    scale_fill_nycc(reverse = TRUE) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    labs(title = "Total specialized high school diversity (2017-18 school year)",
+         subtitle = "The percent of students of each race and ethnicity attending a specialized high school",
+         y = "Percent of students",
+         x = "",
+         caption = "Source: DOE Demographic Snapshot",
+         fill =  "Race/ethnicity") +
+    theme_nycc() +
+    theme_nycc() +
+    theme(panel.border = element_blank(),
+          legend.position = "none")
+} %>%
+  ggplotly(tooltip = "text") %>%
+  config(displayModeBar = FALSE) %>%
+  # hide_legend() %>%
+  layout(margin = list(l = 80)) %>%
+  save_plotly("shs_total_demos")
+
+
 # SHS Poverty -------------------------------------------------------------
 
 {
