@@ -139,7 +139,7 @@ shs_demo_plot <- school_dems %>%
   mutate(race = str_remove(race, "number_") %>%
            str_replace_all("_", " ") %>%
            str_to_sentence() %>%
-           # str_wrap(width = 30) %>%
+           str_wrap(width = 20) %>%
            reorder(number),
          school_name = str_wrap(school_name, 20)) %>%
   ggplot(aes(school_name, prop, fill = race,
@@ -159,15 +159,15 @@ shs_demo_plot <- school_dems %>%
        caption = "Source: DOE Demographic Snapshot",
        fill =  "Race/ethnicity") +
   theme_nycc() +
-  theme(legend.position = "bottom",
+  theme(legend.position = "top",
         axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
         panel.border = element_blank())
 
 shs_demo_plot %>%
   ggplotly(tooltip = "text") %>%
   config(displayModeBar = FALSE) %>%
-  hide_legend() %>%
-  layout(margin = list(l = 80)) %>%
+  # hide_legend() %>%
+  layout(margin = list(l = 80), legend = list(orientation = "h", y = -.35)) %>%
   save_plotly("shs_demos")
 
 
