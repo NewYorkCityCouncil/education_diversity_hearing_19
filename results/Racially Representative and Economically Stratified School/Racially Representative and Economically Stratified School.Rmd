@@ -1,0 +1,82 @@
+---
+title: "Racially Representative and Economically Stratified Schools"
+# author: "Your Name"
+date: '`r councildown::pretty_date()`'
+output: 
+  councildown::council_html:
+    number_sections: false
+  councildown::council_pdf:
+    latex_engine: xelatex
+compact-title: true
+fontsize: 11pt
+subparagraph: yes
+---
+
+```{r include = FALSE}
+library(ggplot2)
+library(councildown)
+library(kableExtra)
+library(scales)
+library(readxl)
+library(janitor)
+
+extrafont::loadfonts()
+knitr::knit_hooks$set(embed = hook_pdfembed)
+knitr::opts_chunk$set(echo = FALSE, embed = TRUE)
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+```{r include = FALSE}
+citywide <- read_excel("data/original_data/demographicsnapshot201314to201718public_final.xlsx", sheet = "Citywide") %>% 
+  clean_names()
+source("code/00_load_data.R")
+```
+
+# 2017-18 School Year {.tabset}
+
+## Racially Representative Schools
+
+### Racially Representative Schools
+
+```{r}
+school_dems %>%
+  select(year, percent_black, percent_hispanic, total_enrollment) %>%
+  mutate(perc_b_h = percent_black + percent_hispanic,
+         rep = perc_b_h > .5 & perc_b_h < .9) %>%
+  group_by(year) %>%
+  summarize(perc_rep = mean(rep),
+            num_rep = sum(rep),
+            num_students = sum(rep*total_enrollment)) %>% 
+  mutate_at(vars(starts_with("perc")), percent_format(accuracy = 1)) %>% 
+  mutate_at(vars(starts_with("num")), number_format(big.mark = ",")) %>% 
+  knitr::kable(col.names = c("Year", "Percent of schools that are racially representative", "Number of schools", "Number of students")) %>% 
+  column_spec(1:4, width = "25%") %>% 
+  kable_styling(bootstrap_options = "striped")
+
+
+
+```
+
+
+## Economically Stratified Schools 
+
+### Economically Stratified Schools 
+
+```{r}
+school_dems %>%
+  select(year, economic_need_index, total_enrollment) %>%
+  left_join(citywide %>% select(year, city_eni = economic_need_index), by = "year") %>%
+  mutate(strat = economic_need_index > city_eni - .1 & economic_need_index < city_eni + .1) %>%
+  group_by(year) %>%
+  summarize(perc_strat = mean(strat, na.rm = TRUE),
+            num_strat = sum(strat, na.rm = TRUE),
+            num_students = sum(strat*total_enrollment)) %>% 
+  filter(year != "2013-14") %>% 
+  mutate_at(vars(starts_with("perc")), percent_format(accuracy = 1)) %>% 
+  mutate_at(vars(starts_with("num")), number_format(big.mark = ",")) %>% 
+  knitr::kable(col.names = c("Year", "Percent of schools that are economically stratified", "Number of schools", "Number of students")) %>% 
+  column_spec(1:4, width = "25%") %>% 
+  kable_styling(bootstrap_options = "striped")
+
+```
+
