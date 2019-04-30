@@ -50,13 +50,14 @@ school_divs <- school_dems %>%
          number_black,
          number_hispanic,
          number_multiple_race_categories_not_represented,
-         number_white) %>%
-  gather("race", "number", -school_name, -dbn, -year) %>%
+         number_white,
+         percent_poverty) %>%
+  gather("race", "number", -school_name, -dbn, -year, -percent_poverty) %>%
   group_by(school_name) %>%
   mutate(prop = number/sum(number)) %>%
   ungroup() %>%
   group_by(school_name, dbn) %>%
-  summarize(sj = sj_div(prop, baseline = baseline)) %>%
+  summarize(sj = sj_div(prop, baseline = baseline), percent_poverty = unique(percent_poverty)) %>%
   left_join(school_locations %>%
               select(ats_system_code) %>%
               mutate(ats_system_code = str_trim(ats_system_code)), by = c("dbn" = "ats_system_code")) %>%
@@ -65,8 +66,8 @@ school_divs <- school_dems %>%
 cols <- c("#82C91E", "#CB5871", "#706AE0", "#F59F00", "#16AC9E")
 
 plots <- school_dems %>%
-  mutate(is_middle = grade_6 == 0 & grade_4 > 0) %>%
-  filter(year == "2017-18", is_middle, !str_detect(dbn, "^84")) %>%
+  mutate(is_elem = grade_6 == 0 & grade_4 > 0) %>%
+  filter(year == "2017-18", is_elem, !str_detect(dbn, "^84")) %>%
   select(school_name,
          year,
          dbn,
@@ -74,8 +75,9 @@ plots <- school_dems %>%
          number_black,
          number_hispanic,
          number_multiple_race_categories_not_represented,
-         number_white) %>%
-  gather("race", "number", -school_name, -dbn, -year) %>%
+         number_white,
+         percent_poverty) %>%
+  gather("race", "number", -school_name, -dbn, -year, -percent_poverty) %>%
   mutate(race = str_remove(race, "number_") %>%
            str_replace_all("_", " ") %>%
            str_to_sentence() %>%
@@ -88,23 +90,38 @@ plots <- school_dems %>%
                         geom_col(aes(fill = race), show.legend = FALSE) +
                         scale_fill_manual(values = cols) +
                         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-                        labs(title = ifelse(str_detect(.y, "^The"), .y, paste("The", .y)),
+                        labs(title = .y,
                              x = "Race/ethnicity",
                              y = "Percent of students") +
                         coord_flip() +
                         theme_nycc(print = TRUE)))
 
-# pal <- colorNumeric("Blues", school_divs$sj)
-#
-# diversity_map_elem <- school_divs %>%
-#   left_join(plots, by = "dbn") %>%
-#   leaflet() %>%
-#   addCouncilStyle(add_dists = FALSE) %>%
-#   addCircleMarkers(radius = 3, stroke = FALSE, fillOpacity = .9,
-#                    fillColor = ~pal(sj),
-#                    popup = ~mapview::popupGraph(plots)) %>%
-#   addLegend(pal = pal, values = ~sj)
-#
+pal <- colorNumeric("Blues", school_divs$percent_poverty)
+
+diversity_map_elem <- school_divs %>%
+  left_join(plots, by = "dbn") %>%
+  leaflet() %>%
+  addCouncilStyle(add_dists = FALSE) %>%
+  addCircleMarkers(radius = 6, stroke = FALSE, fillOpacity = .9,
+                   fillColor = "#2F56A6") %>%
+  addLabelOnlyMarkers(label = ~school_name.x)
+
+
+school_divs %>%
+  left_join(plots, by = "dbn") %>%
+  filter(dbn %in% c("15K130", "17K249")) %>%
+  leaflet() %>%
+  addCouncilStyle(add_dists = FALSE) %>%
+  # addCircleMarkers(radius = 6, stroke = FALSE, fillOpacity = .9,
+  #                  fillColor = "#2F56A6") %>%
+  addLabelOnlyMarkers(label = ~school_name.x,
+                      labelOptions = leaflet::labelOptions(permanent = TRUE, noHide = TRUE,
+                                                           textOnly = TRUE,
+                                                           textsize = 12,
+                                                           direction = "center",
+                                                           style = list(color = "#22222",
+                                                                        `font-family` = "'Open Sans', sans-serif",
+                                                                        `font-weight` = "bold")))
 
 tmp <- school_divs %>%
   left_join(plots, by = "dbn")
@@ -142,6 +159,17 @@ non_rep[mins[,2],] %>%
   unnest()
 
 
-plots <- map2(rep[mins[,1],]$plots, non_rep[mins[,2],]$plots, ~plot_grid(.x, .y, align = "hv"))
+# plots <- map2(rep[mins[,1],]$plots, non_rep[mins[,2],]$plots, ~plot_grid(.x, .y, align = "hv"))
 
 # map2(plots, 1:length(plots), ~ggsave(paste0("plot_", .y, ".jpg"), .x, , width = 10, height = 5))
+
+p1 <- plots %>%
+  filter(dbn == "15K130") %>%
+  pull(plots) %>%
+  .[[1]]
+p2 <- plots %>%
+  filter(dbn == "17K249") %>%
+  pull(plots) %>%
+  .[[1]]
+
+compare_plot <- plot_grid(p1, p2)

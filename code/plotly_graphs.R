@@ -248,8 +248,7 @@ shs_demo_plot %>%
 source("code/elem_school_maps.R")
 
 {
-  rep[mins[,1],]$plots[[1]] +
-    theme_nycc() +
+  p1 +
     theme(legend.position = "none",
           panel.border = element_blank())
 }%>%
@@ -257,17 +256,16 @@ source("code/elem_school_maps.R")
   config(displayModeBar = FALSE) %>%
   hide_legend() %>%
   layout(margin = list(l = 80)) %>%
-  save_plotly("star_academy_demos")
+  save_plotly("parkside_demos")
 
 {
-  non_rep[mins[,2],]$plots[[1]] +
-    theme_nycc() +
+  p2 +
     theme(legend.position = "none",
           panel.border = element_blank())
-  }%>%
+  } %>%
   ggplotly(tooltip = "text") %>%
   config(displayModeBar = FALSE) %>%
   hide_legend() %>%
   layout(margin = list(l = 80)) %>%
-  save_plotly("neighborhood_school_demos")
+  save_plotly("caton_demos")
 

@@ -3,9 +3,9 @@ title: "School diversity hearing"
 author: "Nick Solomon and James Subudhi"
 date: '`r councildown::pretty_date()`'
 output: 
+  councildown::council_html: default
   councildown::council_pdf:
     latex_engine: xelatex
-  councildown::council_html: default
 compact-title: true
 fontsize: 11pt
 subparagraph: yes
@@ -326,8 +326,30 @@ nbhd_eni <- school_dems %>%
 
 ```{r fig.asp = .5, fig.height=4, fig.cap = "Segregated and integrated schools are often very close to one another. These two elementary schools are co-located in the same building, but one is much more segregated than the other."}
 source("code/elem_school_maps.R")
-plots[[1]]
+compare_plot
 ```
+
+```{r}
+school_dems %>% 
+  filter(dbn %in% c("15K130", "17K249"), year == "2017-18") %>% 
+  select(school_name,
+         percent_asian, percent_black, percent_hispanic, percent_white,
+         percent_poverty, economic_need_index,
+         percent_english_language_learners,
+         percent_students_with_disabilities) %>%
+  mutate_if(is.numeric, percent) %>% 
+  gather(var, val, - school_name) %>% 
+  spread(school_name, val)
+
+diversity_report_k8 %>% 
+  filter(dbn %in% c("15K130", "17K249"), category == "All Students") %>% 
+  select(school_name, ela_percent_l3_l4, math_percent_l3_l4) %>% 
+  mutate_at(vars(contains("percent")), as.numeric) %>% 
+  mutate_if(is.numeric, percent) %>% 
+  gather(var, val, - school_name) %>% 
+  spread(school_name, val)
+```
+
 
 The STAR Academy is predominately black and Hispanic, with fewer than 20% white students. The Neighborhood school, on the other hand is more than 40% white. What could cause such a discrepancy? Furthermore, these schools show differences in demographics beyond race. In the 2017-18 school year, The STAR Academy, which is predominantly Hispanic and black, had an economic need index of `r percent(star_eni)` and the DOE classified `r percent(star_pov)` of its students as experiencing poverty. In comparison, during the same year The Neighborhood School had an economic need index of `r percent(nbhd_eni)` and `r percent(nbhd_pov)` of its students experienced poverty. These schools are divided not just along racial lines but along socio-economic lines.
 
