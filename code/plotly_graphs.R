@@ -204,7 +204,6 @@ shs_demo_plot %>%
          caption = "Source: DOE Demographic Snapshot",
          fill =  "Race/ethnicity") +
     theme_nycc() +
-    theme_nycc() +
     theme(panel.border = element_blank(),
           legend.position = "none")
 } %>%
@@ -227,7 +226,7 @@ shs_demo_plot %>%
     ggplot(aes(school_name, percent_poverty, text = paste(school_name, percent(percent_poverty), sep = "<br>"))) +
     geom_col(show.legend = FALSE, fill = "#2F56A6") +
     # ggplot2::scale_fill_gradient(low = "#228AE6", high = "#FFFFFF") +
-    scale_y_continuous(labels = percent_format(accuracy = 1)) +
+    scale_y_continuous(labels = percent_format(accuracy = 1), expand = expand_scale(mult = .05, add = c(0, .05))) +
     coord_flip() +
     labs(title = "Students in poverty",
          x = "Specialized high schools",
