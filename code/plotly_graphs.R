@@ -197,7 +197,7 @@ shs_demo_plot %>%
     #           vjust = -.5) +
     scale_fill_nycc(reverse = TRUE) +
     scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-    labs(title = "Total specialized high school diversity/n(2017-18 school year)",
+    labs(title = "Total specialized high school diversity\n(2017-18 school year)",
          subtitle = "The percent of students of each race and ethnicity attending a specialized high school",
          y = "Percent of students",
          x = "",
